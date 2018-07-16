@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <xsd:group name="span1">
+        <xsd:all>
+            <xsd:element name="span" minOccurs="0">
+                <xsd:complexType>
+                    <xsd:simpleContent>
+                        <xsd:extension base="xsd:string">
+                            <xsd:attribute name="class" type="xsd:string" use="required" fixed="num"/>
+                        </xsd:extension>
+                    </xsd:simpleContent>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:all>
+    </xsd:group>
+
+    <xsd:group name="span2">
+        <xsd:all>
+            <xsd:element name="span" minOccurs="0">
+                <xsd:complexType>
+                    <xsd:sequence>
+                        <xsd:element name="a">
+                            <xsd:complexType>
+                                <xsd:simpleContent>
+                                    <xsd:extension base="xsd:string">
+                                        <xsd:attribute name="class" type="xsd:string" use="required" fixed="subtitle"/>
+                                        <xsd:attribute name="href" type="xsd:string" use="required"/>
+                                        <xsd:attribute name="title" type="xsd:string" use="required"/>
+                                        <xsd:attribute name="onmousedown" type="xsd:string" use="required"/>
+                                    </xsd:extension>
+                                </xsd:simpleContent>
+                            </xsd:complexType>
+                        </xsd:element>
+                    </xsd:sequence>
+                    <xsd:attribute name="class" type="xsd:string" use="required" fixed="artist"/>
+                </xsd:complexType>
+            </xsd:element>
+        </xsd:all>
+    </xsd:group>
+
+    <xsd:element name="div">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="ul" maxOccurs="2">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="li" maxOccurs="unbounded">
+                                <xsd:complexType>
+                                    <xsd:sequence>
+                                        <xsd:group ref="span1" minOccurs="0" maxOccurs="unbounded"/>
+
+                                        <xsd:element name="a">
+                                            <xsd:complexType>
+                                                <xsd:simpleContent>
+                                                    <xsd:extension base="xsd:string">
+                                                        <xsd:attribute name="class" type="xsd:string" use="required"/>
+                                                        <xsd:attribute name="href" type="xsd:string" use="required"/>
+                                                        <xsd:attribute name="onmousedown" type="xsd:string"
+                                                                       use="required"/>
+                                                    </xsd:extension>
+                                                </xsd:simpleContent>
+                                            </xsd:complexType>
+                                        </xsd:element>
+                                        <xsd:group ref="span2" minOccurs="0" maxOccurs="unbounded"/>
+
+                                    </xsd:sequence>
+                                    <xsd:attribute name="class" type="xsd:string"/>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
+                        <xsd:attribute name="class" type="xsd:string" use="required"/>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:sequence>
+            <xsd:attribute name="class" type="xsd:string" fixed="song-list content clearfix"/>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>
