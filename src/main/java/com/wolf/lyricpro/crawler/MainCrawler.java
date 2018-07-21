@@ -37,7 +37,7 @@ public abstract class MainCrawler {
 
     public abstract void parse(List listSong) throws IOException;
 
-    public abstract void crawlLyric(Song song, List<Verse> verses) throws IOException;
+    public abstract boolean crawlLyric(Song song, List<Verse> verses) throws IOException;
 
     protected InputStream convertSBToIS(StringBuilder builder)
             throws UnsupportedEncodingException {
@@ -52,6 +52,6 @@ public abstract class MainCrawler {
         int startIndex = builder.indexOf(st);
         builder.delete(0, startIndex);
         int endIndex = builder.indexOf(en);
-        builder.delete(endIndex + 6, builder.length());
+        builder.delete(endIndex, builder.length());
     }
 }

@@ -33,7 +33,7 @@ public class LyricsVNCrawler extends MainCrawler {
         String url = lyricVn;
         Song song = null;
         int count = 1;
-        for (int i = 1; i <= 20; i++) {
+        for (int i = 1; i <= 40; i++) {
             if (count % 1000 == 0) {
                 System.out.println("You have been crawled " + count + " songs,,,,");
             }
@@ -102,10 +102,11 @@ public class LyricsVNCrawler extends MainCrawler {
     }
 
     @Override
-    public void crawlLyric(Song song, List<Verse> verses) throws IOException {
+    public boolean crawlLyric(Song song, List<Verse> verses) throws IOException {
         InputStream lyricIs = converHtmlToIS(song.getUrl());
         InputStream checkLyricIs = checkAndCleanTagLyric(lyricIs);
         XMLStreamReader xmlReaderLyric = null;
+        boolean isValid = false;
         int seq = 1;
         try {
             xmlReaderLyric = XmlUtils.parseFileToStaxCursor(checkLyricIs);
@@ -127,7 +128,9 @@ public class LyricsVNCrawler extends MainCrawler {
                                     verses.add(verse);
                                     seq++;
                                 }
+                                isValid = true;
                             }
+                            break;
                         }
                     }
                 } catch (NullPointerException e) {
@@ -135,11 +138,13 @@ public class LyricsVNCrawler extends MainCrawler {
                 }
             }
 
-//            System.out.println(song.getName() + " doned.");
         } catch (XMLStreamException e) {
-            System.out.println("Skip this song cause of wellform");
+            return false;
         } catch (Exception e) {
             Logger.getLogger(LyricsVNCrawler.class.getName()).log(Level.SEVERE, null, e);
+            return false;
+        } finally {
+            return isValid;
         }
     }
 
@@ -158,8 +163,7 @@ public class LyricsVNCrawler extends MainCrawler {
                 builder.append(line);
             }
             clearTrashHtml("<div class=\"site-view idx-list-item clearfix\">",
-                    "</div></div></div>", builder);
-            builder.append("</div></div></div>");
+                    "<!-- Begin: Paging -->", builder);
             return convertSBToIS(builder);
         }
         return null;
@@ -176,13 +180,17 @@ public class LyricsVNCrawler extends MainCrawler {
                 String line = str.replaceAll("&nbsp;", " ");
                 line = line.replaceAll("&", "");
                 line = line.replaceAll("\n", "");
+                line = line.replaceAll("<em>", "");
+                line = line.replaceAll("</em>", "");
+                line = line.replaceAll("<strong>", "");
+                line = line.replaceAll("</strong>", "");
                 line = line.replaceAll("<br/>", "borick");
                 builder.append(line);
 
             }
 
             clearTrashHtml("<div class=\"detail\">",
-                    "</div>", builder);
+                    "</div></div>", builder);
             return convertSBToIS(builder);
         }
         return null;

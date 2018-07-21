@@ -6,6 +6,7 @@ import com.wolf.lyricpro.repository.SongRepository;
 import com.wolf.lyricpro.utils.XmlUtils;
 
 import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,52 +50,56 @@ public class MetroLyricCrawler extends MainCrawler {
 
             try {
                 xmlReader = XmlUtils.parseFileToStaxCursor(checkedIs);
-                if (1 == 1) {
-                    while (xmlReader.hasNext()) {
-                        if (!found) {
-                            song = new Song();
-                        }
-                        try {
-                            int cursor = xmlReader.next();
-                            if (cursor == XMLStreamConstants.START_ELEMENT) {
-                                String tagName = xmlReader.getLocalName();
-                                if ("li".equals(tagName)) {
-                                    found = true;
-                                }
-                                if ("span".equals(tagName) && found) {
-                                    String className = XmlUtils.getNodeStaxValue(xmlReader, "span", "", "class");
-                                    if (className.equals("num")) {
-                                        System.out.print(xmlReader.getElementText() + " > ");
-                                    }
-                                }
-                                if ("a".equals(tagName) && found) {
-                                    String className = XmlUtils.getNodeStaxValue(xmlReader, "a", "", "class");
-                                    if (className.equals("title hasvidtoplyriclist") || className.equals("title ")) {
-                                        String songUrl = XmlUtils.getNodeStaxValue(xmlReader, "a", "", "href");
-                                        String songName = xmlReader.getElementText().split("Lyrics")[0];
-                                        song.setName(songName);
-                                        song.setUrl(songUrl);
-                                    }
-                                    if (className.equals("subtitle")) {
-                                        String artist = xmlReader.getElementText();
-                                        song.setArtist(artist);
-                                        song.setCrawlCode(1);
-                                        listSong.add(song);
-                                        count++;
-                                        found = false;
-                                        System.out.println(song.getName() + " doned.");
-                                    }
+                while (xmlReader.hasNext()) {
+                    if (!found) {
+                        song = new Song();
+                    }
+                    try {
+                        int cursor = xmlReader.next();
+                        if (cursor == XMLStreamConstants.START_ELEMENT) {
+                            String tagName = xmlReader.getLocalName();
+                            if ("li".equals(tagName)) {
+                                found = true;
+                            }
+                            if ("span".equals(tagName) && found) {
+                                String className = XmlUtils.getNodeStaxValue(xmlReader, tagName, "", "class");
+                                if (className.equals("num")) {
+                                    System.out.print(xmlReader.getElementText() + " > ");
                                 }
 
                             }
-                        } catch (NullPointerException e) {
-                            Logger.getLogger(MetroLyricCrawler.class.getName()).log(Level.SEVERE, null, e);
-                            break;
-                        }
-                    }
+                            if ("a".equals(tagName) && found) {
+                                String className = XmlUtils.getNodeStaxValue(xmlReader, tagName, "", "class");
 
-                    System.out.println("Total " + count + " links");
+                                if (className.equals("title hasvidtoplyriclist") || className.equals("title ")) {
+                                    String songUrl = XmlUtils.getNodeStaxValue(xmlReader, "a", "", "href");
+                                    String songName = xmlReader.getElementText().split("Lyrics")[0];
+                                    song.setName(songName);
+                                    song.setUrl(songUrl);
+                                }
+
+                                if (className.equals("subtitle")) {
+                                    String artist = xmlReader.getElementText();
+                                    song.setArtist(artist);
+                                    song.setCrawlCode(1);
+                                    listSong.add(song);
+                                    count++;
+                                    found = false;
+                                    System.out.println(song.getName() + " doned.");
+                                }
+
+
+                            }
+
+
+                        }
+                    } catch (NullPointerException e) {
+                        Logger.getLogger(MetroLyricCrawler.class.getName()).log(Level.SEVERE, null, e);
+                        break;
+                    }
                 }
+
+                System.out.println("Total " + count + " links");
             } catch (Exception e) {
                 Logger.getLogger(MetroLyricCrawler.class.getName()).log(Level.SEVERE, null, e);
             }
@@ -104,10 +109,11 @@ public class MetroLyricCrawler extends MainCrawler {
     }
 
     @Override
-    public void crawlLyric(Song song, List<Verse> verses) throws IOException {
+    public boolean crawlLyric(Song song, List<Verse> verses) throws IOException {
         InputStream lyricIs = converHtmlToIS(song.getUrl());
         InputStream checkLyricIs = checkAndCleanTagLyric(lyricIs);
         XMLStreamReader xmlReaderLyric = null;
+        boolean isValid = false;
         int seq = 1;
         try {
             xmlReaderLyric = XmlUtils.parseFileToStaxCursor(checkLyricIs);
@@ -119,12 +125,17 @@ public class MetroLyricCrawler extends MainCrawler {
                         if ("p".equals(tagNameLyric)) {
                             String classNameLyric = XmlUtils.getNodeStaxValue(xmlReaderLyric, "p", "", "class");
                             if (classNameLyric.equals("verse")) {
-                                Verse verse = new Verse();
-                                verse.setVerse(xmlReaderLyric.getElementText());
-                                verse.setSequence(seq);
-                                verse.setSong(song);
-                                verses.add(verse);
-                                seq++;
+                                String insideVerse = xmlReaderLyric.getElementText();
+                                String[] versesArray = insideVerse.split("borick");
+                                for (int i = 0; i < versesArray.length; i++) {
+                                    Verse verse = new Verse();
+                                    verse.setVerse(versesArray[i].trim());
+                                    verse.setSequence(seq);
+                                    verse.setSong(song);
+                                    verses.add(verse);
+                                    seq++;
+                                }
+                                isValid = true;
                             }
                         }
                         if ("div".equals(tagNameLyric)) {
@@ -134,13 +145,17 @@ public class MetroLyricCrawler extends MainCrawler {
                             }
                         }
                     }
+
+                } catch (XMLStreamException e) {
+                    return false;
                 } catch (NullPointerException e) {
                     break;
                 }
             }
-//            System.out.println(song.getName()+" doned.");
         } catch (Exception e) {
             Logger.getLogger(MetroLyricCrawler.class.getName()).log(Level.SEVERE, null, e);
+        } finally {
+            return isValid;
         }
     }
 
@@ -158,7 +173,7 @@ public class MetroLyricCrawler extends MainCrawler {
                 builder.append(line);
             }
             clearTrashHtml("<div class=\"song-list content clearfix\">",
-                    "</div>", builder);
+                    "</div></div><div class=\"grid_4\">", builder);
             return convertSBToIS(builder);
         }
         return null;
@@ -174,7 +189,7 @@ public class MetroLyricCrawler extends MainCrawler {
             while ((str = re.readLine()) != null) {
                 String line = str.replaceAll("&nbsp;", " ");
                 line = line.replaceAll("&", "");
-                line = line.replaceAll("<br>", "\n");
+                line = line.replaceAll("<br>", "borick");
                 builder.append(line);
 
             }

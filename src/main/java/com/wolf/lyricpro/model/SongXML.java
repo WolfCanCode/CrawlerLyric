@@ -4,6 +4,7 @@ package com.wolf.lyricpro.model;
 import javax.xml.bind.annotation.*;
 
 @XmlRootElement(name = "song")
+@XmlSeeAlso(LyricXML.class)
 @XmlAccessorType(XmlAccessType.FIELD)
 @XmlType(name = "song", propOrder = {
         "name",

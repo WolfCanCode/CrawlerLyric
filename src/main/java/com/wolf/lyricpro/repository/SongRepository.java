@@ -12,6 +12,6 @@ import java.util.List;
 public interface SongRepository extends JpaRepository<Song, Long> {
     Song findById(Integer songID);
 
-    @Query("select s  from Song s where s.name like %:songName% ")
+    @Query("select s  from Song s where s.name like %:songName ")
     List<Song> findByName(@Param("songName") String songName);
 }

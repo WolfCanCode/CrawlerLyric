@@ -1,12 +1,13 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <title>Getting Started: Serving Web Content</title>
+    <title>Search song</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 </head>
-<body>
+<body onload="loadXMLDoc()">
 <h3>Search song</h3>
-<input type="text" name="q" id="key"/><input type="submit" onclick="loadXMLDoc()" value="Search">
+<input type="text" name="q" id="key" value="${param.key}" onchange="loadXMLDoc()"/><input type="submit" value="Search">
+<h3 id="result"></h3>
 <div id="songList">
 
 </div>
@@ -14,8 +15,7 @@
 <script>
     function loadXMLDoc() {
         var key = document.getElementById("key").value;
-        if (key === null) {
-            alert("Please give me atleast a letter");
+        if (key === null || key === "") {
         } else {
             var xhttp = new XMLHttpRequest();
 
@@ -26,19 +26,21 @@
 
                 }
             };
-            xhttp.open("GET", "http://91747779.ngrok.io/song/search?q=" + key, true);
+            xhttp.open("GET", "http://localhost:8080/song/search?q=" + key, true);
             xhttp.send();
         }
     }
 
     function getTemplate(id, songName, author, listVerse) {
         var template = "";
-        if (listVerse != null) {
-            template = "<a href='song/" + id + "'>#" + id + " -" + songName + "</a>- " + author + "<br>\n" +
-                "    <p style='font-size:10px'>" + listVerse.childNodes[0].textContent + "</p>\n" +
-                "    <p style='font-size:10px'>" + listVerse.childNodes[1].textContent + "</p>\n" +
-                "    <p style='font-size:10px'>" + listVerse.childNodes[2].textContent + "</p>\n" +
-                "    <p style='font-size:10px'>...</p>";
+        var key = document.getElementById("key").value;
+        if (listVerse.childNodes.length != 0) {
+            template = "<a href='song/" + id + "?callback=" + key + "'>#" + id + " -" + songName + "</a>- " + author + "<br>\n";
+            for (let i = 0; i < listVerse.childNodes.length; i++) {
+                if (i > 3) break;
+                template += "    <p style='font-size:10px'>" + listVerse.childNodes[i].textContent + "</p>\n";
+            }
+            template += "    <p style='font-size:10px'>...</p>";
         }
         else {
             template = "<a href='song/" + id + "'>" + songName + "</a>- " + author + "<br>\n" +
@@ -48,10 +50,11 @@
     }
 
     function bindXml(xml) {
-        var i;
         var xmlDoc = xml.responseXML;
         var listSong = "";
         var x = xmlDoc.getElementsByTagName("songs");
+        var key = document.getElementById("key").value;
+        document.getElementById("result").innerHTML = "Have found " + x.length + " songs have keyword '" + key + "'";
         for (i = 0; i < x.length; i++) {
             listSong += getTemplate(x[i].getAttribute("id"), x[i].getElementsByTagName("name")[0].childNodes[0].nodeValue,
                 x[i].getElementsByTagName("artist")[0].childNodes[0].nodeValue,

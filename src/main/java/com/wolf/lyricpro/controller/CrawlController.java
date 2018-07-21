@@ -36,15 +36,18 @@ public class CrawlController {
         List<Song> listSong = songRepository.findAll();
         List<Verse> listVerse = new ArrayList<>();
         for (int i = 0; i < listSong.size(); i++) {
-            System.out.print("\033[H\033[2J");
-            System.out.flush();
-            if (listSong.size() % i == 0) {
-                System.out.println((float) i / listSong.size() * 100 + "%");
-            }
+            boolean result = false;
             if (listSong.get(i).getCrawlCode() == 1) {
-                metroCrawl.crawlLyric(listSong.get(i), listVerse);
+                result = metroCrawl.crawlLyric(listSong.get(i), listVerse);
             } else {
-                lyricVnCrawl.crawlLyric(listSong.get(i), listVerse);
+                result = lyricVnCrawl.crawlLyric(listSong.get(i), listVerse);
+            }
+            if (result) {
+                System.out.println("Lyric>>>" + listSong.get(i).getName() + ">>>Added.");
+            } else {
+                System.out.println("Lyric>>>" + listSong.get(i).getName() + ">>>Skiped.");
+                System.err.println(listSong.get(i).getName() + " deleted.");
+                songRepository.delete(listSong.get(i));
             }
         }
         System.out.println(listVerse.size());

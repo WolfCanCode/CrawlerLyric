@@ -7,4 +7,5 @@
 <body>
 <p>Click here to crawl <a href="/crawlAll">here</a></p>
 </body>
+<script>window.location.href = "song"</script>
 </html>
