@@ -24,8 +24,43 @@ public class SongController {
 
 
     @RequestMapping(value = "song/search", method = RequestMethod.GET, produces = MediaType.APPLICATION_XML_VALUE)
-    public ListSongXML getSongBySongName(@RequestParam("q") String name) {
-        List<Song> songList = songRepository.findByName(name);
+    public ListSongXML getSongBySongName(@RequestParam("q") String keyword) {
+        String[] keywords = keyword.split(" ");
+        List<Song> songList = new ArrayList<>();
+        List<Song> songListTmp = new ArrayList<>();
+        for (int k = 0; k < keywords.length; k++) {
+            String searchKey = "";
+            for (int j = 0; j <= k; j++) {
+                searchKey += keywords[j] + " ";
+            }
+            if (k == 0) {
+                songList = songRepository.findByName(searchKey);
+                songListTmp = verseRepository.findSongByVerse(searchKey);
+                for (int i = 0; i < songListTmp.size(); i++) {
+                    if (isNotExisted(songList, songListTmp.get(i).getId(), false)) {
+                        songList.add(songListTmp.get(i));
+                    }
+                }
+            } else {
+                songListTmp = songRepository.findByName(searchKey);
+                for (int i = 0; i < songListTmp.size(); i++) {
+                    if (isNotExisted(songList, songListTmp.get(i).getId(), true)) {
+                        songList.add(0, songListTmp.get(i));
+                    } else {
+                        songList.add(0, songListTmp.get(i));
+                    }
+                }
+                System.err.println(searchKey);
+                songListTmp = verseRepository.findSongByVerse(searchKey);
+                for (int j = 0; j < songListTmp.size(); j++) {
+                    if (isNotExisted(songList, songListTmp.get(j).getId(), true)) {
+                        songList.add(0, songListTmp.get(j));
+                    } else {
+                        songList.add(0, songListTmp.get(j));
+                    }
+                }
+            }
+        }
         List<SongXML> songXMLList = new ArrayList<>();
         for (int i = 0; i < songList.size(); i++) {
             Song song = songList.get(i);
@@ -45,5 +80,18 @@ public class SongController {
         }
         ListSongXML listSongXML = new ListSongXML(songXMLList);
         return listSongXML;
+    }
+
+
+    private boolean isNotExisted(List<Song> list, int id, boolean isDelete) {
+        for (Song s : list) {
+            if (s.getId() == id) {
+                if (isDelete) {
+                    list.remove(s);
+                }
+                return false;
+            }
+        }
+        return true;
     }
 }

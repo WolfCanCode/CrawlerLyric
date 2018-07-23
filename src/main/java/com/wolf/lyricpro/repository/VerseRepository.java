@@ -13,4 +13,7 @@ import java.util.List;
 public interface VerseRepository extends JpaRepository<Verse, Long> {
     @Query("select v from Verse v where v.song = :song")
     List<Verse> findAllBySong(@Param("song") Song song);
+
+    @Query("select v.song from Verse v where v.verse like %:word%")
+    List<Song> findSongByVerse(@Param("word") String word);
 }

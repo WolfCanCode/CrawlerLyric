@@ -1,3 +1,4 @@
+<%@ page pageEncoding="UTF-8" %>
 <!DOCTYPE HTML>
 <html>
 <head>
@@ -21,9 +22,10 @@
 
         .header {
             width: 100%;
-            height: 400px;
+            height: 450px;
             display: flex;
             flex-direction: column;
+            z-index: 9999;
 
         }
 
@@ -67,17 +69,19 @@
         }
 
         .result {
-            align-self: center;
+            text-align: center;
             font-family: Calibri;
             color: white;
+            font-size: 22px;
         }
 
         .body {
             width: 100%;
             height: auto;
+            z-index: 9999;
         }
 
-        .body .song {
+        .body .itmSg {
             background: #fff;
             width: 600px;
             text-align: center;
@@ -86,21 +90,22 @@
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 15px;
+            transition: 1s all;
         }
 
-        .song a {
+        .itmSg a {
             font-size: 35px;
             text-decoration: none;
             font-family: Calibri;
             font-weight: bold;
         }
 
-        .song span {
+        .itmSg span {
             font-size: 15px;
             font-style: italic;
         }
 
-        .song p {
+        .itmSg p {
             font-size: 20px;
             font-family: "Calibri Light";
         }
@@ -110,9 +115,12 @@
             height: 1000px;
             width: 100%;
             top: 0;
-            display: none;
+            display: block;
             text-align: center;
             position: fixed;
+            opacity: 0;
+            z-index: -1;
+            transition: 1s all;
         }
 
         .overlay img {
@@ -120,9 +128,22 @@
             width: 40px;
             margin-top: 400px;
         }
+
+        .expand {
+            height: 100% !important;
+            width: 100% !important;
+            background: black !important;
+            transition: 1s all;
+        }
+
+        .display-show {
+            opacity: 1 !important;
+            z-index: 9999;
+            transition: 1s alls;
+        }
     </style>
 </head>
-<body onload="loadXMLDoc()">
+<body onload="loadXSL()">
 <div class="header">
     <div class="logo">
         <img src="/images/remthely.png"/>
@@ -133,8 +154,9 @@
     <div class="search-box">
         <input type="text" name="q" id="key" value="${param.key}" onchange="loadXMLDoc()"
                placeholder="Give me some word..."/>
-        <div class="result"><h3 id="result"></h3></div>
     </div>
+    <div class="result"><h3 id="result"></h3></div>
+
 </div>
 <div class="body">
     <div id="songList">
@@ -145,17 +167,39 @@
 </div>
 </body>
 <script>
-    function loadXMLDoc() {
+    var xsl = "";
+
+    function loadXSL() {
+        document.getElementById("overlay").classList.add("display-show");
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                var parser = new DOMParser();
+                xsl = parser.parseFromString(this.response, "text/xml");
+                document.getElementById("overlay").classList.remove("display-show");
+                init();
+            }
+        };
+        xhttp.open("GET", "http://localhost:8080/xsl/listsong.xsl", true);
+        xhttp.send();
+    }
+
+    function init() {
         var key = document.getElementById("key").value;
         if (key === null || key === "") {
         } else {
-            document.getElementById("overlay").style.display = "block";
+            try {
+                document.getElementById("key").value = decodeURIComponent(escape(window.atob(key)));
+                key = decodeURIComponent(escape(window.atob(key)));
+                document.getElementById("overlay").classList.add("display-show");
+            } catch (e) {
+                window.location = "song";
+            }
             var xhttp = new XMLHttpRequest();
 
             xhttp.onreadystatechange = function () {
                 if (this.readyState == 4 && this.status == 200) {
-                    document.getElementById("overlay").style.display = "none";
-                        bindXml(this);
+                    bindXml(this);
 
                 }
             };
@@ -164,23 +208,54 @@
         }
     }
 
-    function getTemplate(id, songName, author, listVerse) {
-        var template = "";
+    function loadXMLDoc() {
         var key = document.getElementById("key").value;
-        if (listVerse.childNodes.length != 0) {
-            template = "<div class='song'><a href='song/" + id + "?callback=" + key + "'>" + songName + "</a><br><span>" + author + "</span>";
-            for (let i = 0; i < listVerse.childNodes.length; i++) {
-                if (i > 3) break;
-                template += "    <p>" + listVerse.childNodes[i].textContent + "</p>\n";
-            }
-            template += "    <p>...</p></div>";
+        if (key.toLowerCase() == "di"
+            || key.toLowerCase() == "li"
+            || key.toLowerCase() == "br"
+            || key.toLowerCase() == "pa"
+            || key.toLowerCase() == "sp"
+            || key.toLowerCase() == "spa"
+            || key.toLowerCase() == "pan"
+            || key.toLowerCase() == "span"
+            || key.toLowerCase() == "iv") {
+            document.getElementById("result").innerHTML = "<font style='color:red'>This is sensitive word, change another one</font>";
         }
-        else {
-            template = "<a href='song/" + id + "'>" + songName + "</a>- " + author + "<br>\n" +
-                "    <p>...</p></div>";
+        else if (key === null || key === "" || key.length < 2) {
+            document.getElementById("key").style.border = "solid 1px red";
+            document.getElementById("result").innerHTML = "<font style='color:red'>Please we need at least a word!</font>";
+        } else {
+            document.getElementById("overlay").classList.add("display-show");
+            var xhttp = new XMLHttpRequest();
+
+            xhttp.onreadystatechange = function () {
+                if (this.readyState == 4 && this.status == 200) {
+                    bindXml(this);
+
+                }
+            };
+            xhttp.open("GET", "http://localhost:8080/song/search?q=" + key, true);
+            xhttp.send();
         }
-        return template;
     }
+
+    // function getTemplate(id, songName, author, listVerse) {
+    //     var template = "";
+    //     var key = document.getElementById("key").value;
+    //     if (listVerse.childNodes.length != 0) {
+    //         template = "<div class='song'><a href='song/" + id + "?callback=" + key + "'>" + songName + "</a><br><span>" + author + "</span>";
+    //         for (let i = 0; i < listVerse.childNodes.length; i++) {
+    //             if (i > 3) break;
+    //             template += "    <p>" + listVerse.childNodes[i].textContent + "</p>\n";
+    //         }
+    //         template += "    <p>...</p></div>";
+    //     }
+    //     else {
+    //         template = "<a href='song/" + id + "'>" + songName + "</a>- " + author + "<br>\n" +
+    //             "    <p>...</p></div>";
+    //     }
+    //     return template;
+    // }
 
     function bindXml(xml) {
         var xmlDoc = xml.responseXML;
@@ -188,15 +263,43 @@
         var x = xmlDoc.getElementsByTagName("songs");
         var key = document.getElementById("key").value;
         document.getElementById("result").innerText = "Have found " + x.length + " songs have keyword '" + key + "'";
-        for (i = 0; i < x.length; i++) {
-            listSong += getTemplate(x[i].getAttribute("id"), x[i].getElementsByTagName("name")[0].childNodes[0].nodeValue,
-                x[i].getElementsByTagName("artist")[0].childNodes[0].nodeValue,
-                x[i].getElementsByTagName("lyric")[0]);
+        xsltProcessor = new XSLTProcessor();
+        xsltProcessor.importStylesheet(xsl);
+        xsltProcessor.setParameter(null, "callback", window.btoa(unescape(encodeURIComponent(key))));
+        var resultDocument = xsltProcessor.transformToFragment(xmlDoc, document);
+        var result = (new XMLSerializer()).serializeToString(resultDocument);
+        var keyword = key.split(" ");
 
+        for (var i = 0; i < keyword.length; i++) {
+            if (keyword[i].length >= 2) {
+                if (keyword[i].toLowerCase() != "di" && keyword[i].toLowerCase() != "li" && keyword[i].toLowerCase() != "br") {
+                    result = replaceAll(result, keyword[i])
+                }
+            }
         }
-
-        document.getElementById("songList").innerHTML = listSong;
-
+        document.getElementById("overlay").classList.remove("display-show");
+        document.getElementById("songList").innerHTML = result;
     }
+
+    function effectClick(id) {
+        obj = document.getElementById(id);
+        obj.classList.add("expand");
+    }
+
+    function replaceAll(str, find) {
+        str = str.split("#039;").join("'");
+        str = str.split(find).join("<font style='background:yellow'>" + find + "</font>");
+        str = str.split(find.toLowerCase()).join("<font style='background:yellow'>" + find.toLowerCase() + "</font>");
+        str = str.split(find.toUpperCase()).join("<font style='background:yellow'>" + find.toUpperCase() + "</font>");
+        str = str.split(capitalizeFirstLetter(find)).join("<font style='background:yellow'>" + capitalizeFirstLetter(find) + "</font>");
+
+        return str;
+    }
+
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+
 </script>
 </html>
