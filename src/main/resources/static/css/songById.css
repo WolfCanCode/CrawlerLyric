@@ -1,0 +1,62 @@
+html {
+    background: url(/images/wll.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    overflow-y: scroll;
+    height: 100%;
+}
+
+.container {
+    background: white;
+    border-radius: 15px;
+    width: fit-content;
+    height: 100%;
+    padding: 25px;
+    margin: auto;
+    text-align: center;
+    margin-top: 0;
+    padding-left: 50px;
+    padding-right: 50px;
+    transition: 1s all;
+}
+
+.container h1 {
+    font-family: Calibri;
+    font-size: 50px;
+    margin-bottom: 0;
+    color: darkblue;
+}
+
+.container b {
+    font-size: 25px;
+    font-family: "Calibri Light";
+    font-style: italic;
+    color: darkgreen;
+    font-weight: 400;
+}
+
+.container p {
+    font-size: 25px;
+    font-family: Calibri;
+    color: darkslategrey;
+}
+
+.btnBack {
+    float: left;
+    font-family: Tahoma;
+    text-decoration: none;
+    font-size: 25px;
+    padding: 6px;
+    background: #777777;
+    color: white;
+    margin-left: -80px;
+    border-top-left-radius: 10px;
+    border-bottom-left-radius: 10px;
+}
+
+.minimize {
+    margin-top: 1000px;
+    transition: 1s all;
+}

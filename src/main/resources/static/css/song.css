@@ -1,0 +1,179 @@
+html {
+    background: url(/images/wll.jpg) no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: cover;
+    overflow-y: scroll;
+    height: 100%;
+}
+
+body {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.header {
+    width: 100%;
+    height: 450px;
+    display: flex;
+    flex-direction: column;
+    z-index: 9999;
+
+}
+
+.header .logo {
+    flex: 2;
+    display: flex;
+    flex-direction: column;
+    align-self: center;
+    align-items: center;
+
+}
+
+.header .logo img {
+    height: 100px;
+    width: 1000px;
+    flex: 5;
+}
+
+.header .logo span {
+    flex: 1;
+    color: #ccc;
+    font-family: "Calibri Light";
+    font-size: 18px;
+}
+
+.header .search-box {
+    flex: 1;
+    padding-top: 30px;
+    align-self: center;
+}
+
+.header .search-box input[type='text'] {
+    height: 40px;
+    width: 500px;
+    border-radius: 5px;
+    font-size: 25px;
+    padding: 10px;
+    border: 0;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.result {
+    text-align: center;
+    font-family: Calibri;
+    color: white;
+    font-size: 22px;
+}
+
+.body {
+    width: 100%;
+    height: auto;
+    z-index: 9999;
+}
+
+.body .itmSg {
+    background: #F5F5F5;
+    width: 600px;
+    text-align: center;
+    margin: auto;
+    border: 0;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    transition: 1s all;
+}
+
+.itmSg a {
+    font-size: 35px;
+    text-decoration: none;
+    font-family: Calibri;
+    font-weight: bold;
+}
+
+.itmSg span {
+    font-size: 15px;
+    font-style: italic;
+}
+
+.itmSg p {
+    font-size: 20px;
+    font-family: "Calibri Light";
+}
+
+.overlay {
+    background: rgba(0, 0, 0, 0.6);
+    height: 1000px;
+    width: 100%;
+    top: 0;
+    display: block;
+    text-align: center;
+    position: fixed;
+    opacity: 0;
+    z-index: -1;
+    height: 100%;
+    transition: 1s all;
+}
+
+.overlay img {
+    height: 40px;
+    width: 40px;
+    margin-top: 400px;
+}
+
+.expand {
+    height: 100% !important;
+    width: 100% !important;
+    background: white !important;
+    transition: 1s all;
+}
+
+.display-show {
+    opacity: 1 !important;
+    z-index: 9999;
+    transition: 1s alls;
+}
+
+#page {
+    padding-bottom: 50px;
+}
+
+.pagination {
+    width: fit-content;
+    margin: auto;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 10px;
+    border-radius: 25px;
+}
+
+.pagination button {
+    padding: 5px;
+    margin: 2px;
+    font-size: 25px;
+    height: 50px;
+    width: 50px;
+    border-radius: 50%;
+    border: 0;
+    background: white;
+    color: gray;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.7);
+    transition: 1s all;
+}
+
+.pagination button:hover {
+    background: #cccccc;
+    cursor: pointer;
+    box-shadow: 0 0 0;
+    color: white;
+    transition: 0.5s all;
+}
+
+.pagination button.active {
+    background: dimgray;
+    color: white;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.4);
+    transition: 1s all;
+}
