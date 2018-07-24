@@ -57,6 +57,6 @@ html {
 }
 
 .minimize {
-    margin-top: 1000px;
+    margin-top: 1000px !important;
     transition: 1s all;
 }

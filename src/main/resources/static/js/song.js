@@ -1,7 +1,7 @@
 var xsl = "";
 var xml = "";
 var lengthOnce = 6;
-var url = "http://1812c883.ngrok.io";
+var url = "http://localhost:8080";
 
 function loadXSL() {
     document.getElementById("overlay").classList.add("display-show");
